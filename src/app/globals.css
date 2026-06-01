@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #1e293b;
+    --card: #ffffff;
+    --card-foreground: #1e293b;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --card: #1e293b;
+    --card-foreground: #f1f5f9;
+    --border: #334155;
+    --input: #334155;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 14px;
+  }
+}
+
+@layer components {
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-draft {
+    @apply bg-gray-100 text-gray-700;
+  }
+
+  .status-sent {
+    @apply bg-blue-100 text-blue-700;
+  }
+
+  .status-viewed {
+    @apply bg-purple-100 text-purple-700;
+  }
+
+  .status-accepted {
+    @apply bg-green-100 text-green-700;
+  }
+
+  .status-paid {
+    @apply bg-emerald-100 text-emerald-700;
+  }
+
+  .status-overdue {
+    @apply bg-red-100 text-red-700;
+  }
+}
