@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { generateDocumentNumber } from "@/lib/numbering";
+import { generateDocumentNumberWithRetry } from "@/lib/numbering";
 import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: Request) {
@@ -14,6 +14,10 @@ export async function POST(request: Request) {
   }
 
   const { quoteId } = await request.json();
+
+  if (!quoteId) {
+    return NextResponse.json({ error: "quoteId requis" }, { status: 400 });
+  }
 
   const { data: quote } = await supabase
     .from("documents")
@@ -29,7 +33,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ce document n'est pas un devis" }, { status: 400 });
   }
 
-  const number = await generateDocumentNumber(quote.company_id, "invoice");
+  if (quote.status !== "accepted") {
+    return NextResponse.json({ error: "Le devis doit être accepté avant conversion" }, { status: 400 });
+  }
+
+  let number: string;
+  try {
+    number = await generateDocumentNumberWithRetry(quote.company_id, "invoice");
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || "Failed to generate document number" }, { status: 500 });
+  }
 
   const { data: newDoc, error } = await supabase
     .from("documents")
@@ -54,10 +67,12 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json({ error: "Ce numéro de facture existe déjà. Veuillez réessayer." }, { status: 409 });
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Copy lines
   const { data: quoteLines } = await supabase
     .from("document_lines")
     .select("*")
@@ -75,14 +90,22 @@ export async function POST(request: Request) {
       total_ht: line.total_ht,
     }));
 
-    await supabase.from("document_lines").insert(lineInserts);
+    const { error: linesError } = await supabase.from("document_lines").insert(lineInserts);
+
+    if (linesError) {
+      await supabase.from("documents").delete().eq("id", newDoc.id);
+      return NextResponse.json({ error: "Erreur lors de la copie des lignes" }, { status: 500 });
+    }
   }
 
-  // Update original quote status
-  await supabase
+  const { error: updateError } = await supabase
     .from("documents")
     .update({ status: "accepted" })
     .eq("id", quoteId);
+
+  if (updateError) {
+    return NextResponse.json(newDoc);
+  }
 
   return NextResponse.json(newDoc);
 }

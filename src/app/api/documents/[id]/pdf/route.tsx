@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import ReactPDF from "@react-pdf/renderer";
 import { InvoicePDF } from "@/components/documents/invoice-pdf";
 
 export async function GET(
@@ -33,7 +33,7 @@ export async function GET(
     .order("position");
 
   try {
-    const buffer = await renderToBuffer(
+    const buffer = await ReactPDF.renderToBuffer(
       <InvoicePDF document={document} lines={lines ?? []} />,
     );
 

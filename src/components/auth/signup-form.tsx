@@ -21,7 +21,7 @@ export function SignupForm() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,8 +35,13 @@ export function SignupForm() {
       return;
     }
 
-    toast.success("Compte créé ! Redirection...");
-    router.push("/onboarding");
+    if (signUpData?.session) {
+      toast.success("Compte créé ! Redirection...");
+      router.push("/onboarding");
+    } else {
+      toast.success("Compte créé ! Vérifiez votre email pour confirmer.");
+      router.push("/login");
+    }
   };
 
   const handleGoogleSignup = async () => {

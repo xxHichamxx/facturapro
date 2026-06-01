@@ -73,12 +73,16 @@ CREATE TABLE document_lines (
   total_ht NUMERIC NOT NULL DEFAULT 0
 );
 
+-- Unique constraint on document numbers
+ALTER TABLE documents ADD CONSTRAINT unique_document_number UNIQUE (company_id, type, number);
+
 -- Indexes
 CREATE INDEX idx_clients_company ON clients(company_id);
 CREATE INDEX idx_documents_company ON documents(company_id);
 CREATE INDEX idx_documents_client ON documents(client_id);
 CREATE INDEX idx_documents_status ON documents(status);
 CREATE INDEX idx_documents_number ON documents(number);
+CREATE INDEX idx_documents_created_at ON documents(created_at);
 CREATE INDEX idx_document_lines_doc ON document_lines(document_id);
 
 -- Row Level Security
@@ -177,6 +181,23 @@ CREATE POLICY "Company members can delete document lines" ON document_lines
     )
   );
 
--- Public access policy for shared document views
+-- Public access policy for shared document views (only documents with a view_token)
 CREATE POLICY "Public can view shared document" ON documents
-  FOR SELECT USING (true);
+  FOR SELECT USING (view_token IS NOT NULL);
+
+-- Allow public to read client/company data ONLY through the shared document
+CREATE POLICY "Public can view client via shared doc" ON clients
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM documents d
+      WHERE d.client_id = clients.id AND d.view_token IS NOT NULL
+    )
+  );
+
+CREATE POLICY "Public can view company via shared doc" ON companies
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM documents d
+      WHERE d.company_id = companies.id AND d.view_token IS NOT NULL
+    )
+  );

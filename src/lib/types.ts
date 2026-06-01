@@ -32,9 +32,9 @@ export interface Client {
   id: string;
   company_id: string;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
   ice_client: string | null;
   notes: string | null;
   created_at: string;
@@ -58,6 +58,7 @@ export interface Document {
   notes: string | null;
   payment_terms: string | null;
   pdf_url: string | null;
+  view_token: string | null;
   created_at: string;
   updated_at: string;
 }

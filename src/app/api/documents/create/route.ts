@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { generateDocumentNumber } from "@/lib/numbering";
+import { generateDocumentNumberWithRetry } from "@/lib/numbering";
+import { documentSchema } from "@/lib/validations";
 import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: Request) {
@@ -14,9 +15,24 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { company_id, type, client_id, issue_date, due_date, currency, lines, subtotal_ht, tva_amount, total_ttc, notes, payment_terms } = body;
 
-  const number = await generateDocumentNumber(company_id, type);
+  const parsed = documentSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 });
+  }
+
+  const { client_id, type, issue_date, due_date, currency, lines, notes, payment_terms } = parsed.data;
+  const company_id = body.company_id;
+  const subtotal_ht = body.subtotal_ht;
+  const tva_amount = body.tva_amount;
+  const total_ttc = body.total_ttc;
+
+  let number: string;
+  try {
+    number = await generateDocumentNumberWithRetry(company_id, type);
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || "Failed to generate document number" }, { status: 500 });
+  }
 
   const viewToken = uuidv4();
 
@@ -42,6 +58,9 @@ export async function POST(request: Request) {
     .single();
 
   if (docError) {
+    if (docError.code === "23505") {
+      return NextResponse.json({ error: "Ce numéro de document existe déjà. Veuillez réessayer." }, { status: 409 });
+    }
     return NextResponse.json({ error: docError.message }, { status: 500 });
   }
 
@@ -59,7 +78,8 @@ export async function POST(request: Request) {
     const { error: linesError } = await supabase.from("document_lines").insert(lineInserts);
 
     if (linesError) {
-      return NextResponse.json({ error: linesError.message }, { status: 500 });
+      await supabase.from("documents").delete().eq("id", document.id);
+      return NextResponse.json({ error: "Erreur lors de l'enregistrement des lignes" }, { status: 500 });
     }
   }
 

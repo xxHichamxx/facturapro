@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -42,23 +43,7 @@ export default async function DashboardPage() {
     .single();
 
   if (!company) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Card className="max-w-md text-center">
-          <CardHeader>
-            <CardTitle>Bienvenue sur FacturaPro</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4 text-muted-foreground">
-              Configurez d&apos;abord votre entreprise pour commencer.
-            </p>
-            <Link href="/onboarding">
-              <Button>Configurer mon entreprise</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    redirect("/onboarding");
   }
 
   const { data: documents } = await supabase
@@ -69,25 +54,36 @@ export default async function DashboardPage() {
     .limit(10);
 
   const now = new Date();
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
 
   const { data: monthlyDocs } = await supabase
     .from("documents")
     .select("total_ttc, status")
     .eq("company_id", company.id)
     .eq("type", "invoice")
-    .gte("created_at", currentMonthStart);
+    .gte("issue_date", currentMonthStart);
 
   const monthlyRevenue =
     monthlyDocs
       ?.filter((d) => d.status === "paid")
       .reduce((sum, d) => sum + Number(d.total_ttc), 0) ?? 0;
 
-  const pendingCount =
-    monthlyDocs?.filter((d) => d.status === "sent" || d.status === "viewed").length ?? 0;
+  const { data: pendingInvoices } = await supabase
+    .from("documents")
+    .select("id", { count: "exact", head: true })
+    .eq("company_id", company.id)
+    .eq("type", "invoice")
+    .in("status", ["sent", "viewed"]);
 
-  const overdueCount =
-    documents?.filter((d) => d.status === "overdue").length ?? 0;
+  const pendingCount = pendingInvoices?.length ?? 0;
+
+  const { count: overdueCount } = await supabase
+    .from("documents")
+    .select("*", { count: "exact", head: true })
+    .eq("company_id", company.id)
+    .eq("status", "overdue");
+
+  const overdueValue = overdueCount ?? 0;
 
   const { count: quotesCount } = await supabase
     .from("documents")
@@ -120,7 +116,7 @@ export default async function DashboardPage() {
     },
     {
       title: "Retards",
-      value: overdueCount.toString(),
+      value: overdueValue.toString(),
       icon: AlertTriangle,
       color: "text-alert",
       bg: "bg-red-50",

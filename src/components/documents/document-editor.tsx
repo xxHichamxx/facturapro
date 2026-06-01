@@ -27,7 +27,6 @@ import {
   Trash2,
   ArrowLeft,
   Save,
-  Eye,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -401,13 +400,6 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
               <Save className="mr-2 h-4 w-4" />
               {loading ? "Enregistrement..." : documentId ? "Mettre à jour" : "Enregistrer"}
             </Button>
-            {documentId && (
-              <Link href={`/dashboard/${type}s/${documentId}/preview`}>
-                <Button variant="outline">
-                  <Eye className="h-4 w-4" />
-                </Button>
-              </Link>
-            )}
           </div>
         </div>
       </div>
