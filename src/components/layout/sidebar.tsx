@@ -9,6 +9,8 @@ import {
   Users,
   FilePlus,
   Quote,
+  Package,
+  Settings,
   ChevronLeft,
   LogOut,
   Shield,
@@ -96,6 +98,15 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="px-2 pb-1 space-y-0.5">
+        <Link href="/dashboard/products" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors", pathname.startsWith("/dashboard/products") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
+          <Package className="h-5 w-5 shrink-0" />{!collapsed && <span>Produits</span>}
+        </Link>
+        <Link href="/dashboard/settings" className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors", pathname.startsWith("/dashboard/settings") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
+          <Settings className="h-5 w-5 shrink-0" />{!collapsed && <span>Param&egrave;tres</span>}
+        </Link>
+      </div>
 
       {isSuperAdmin && (
         <div className="px-2 pb-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,14 +19,15 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { Company, Client } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import type { Company, Client } from "@/lib/types";
 import { toast } from "sonner";
 import {
   Plus,
   Trash2,
   ArrowLeft,
   Save,
+  Package,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -174,8 +175,30 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
     }
   };
 
+  const [products, setProducts] = useState<any[]>([]);
+  const [showProductPicker, setShowProductPicker] = useState(false);
+
+  useEffect(() => {
+    async function loadProducts() {
+      const supabase = createClient();
+      const { data } = await supabase.from("products").select("*").eq("company_id", company.id).eq("is_active", true).order("name");
+      setProducts(data ?? []);
+    }
+    loadProducts();
+  }, [company.id]);
+
   const addLine = () => {
     append({ description: "", quantity: 1, unit_price: 0, tva_rate: company.default_tva_rate });
+  };
+
+  const addProductLine = (product: any) => {
+    append({
+      description: product.name,
+      quantity: 1,
+      unit_price: product.unit_price,
+      tva_rate: product.default_tva_rate,
+    });
+    setShowProductPicker(false);
   };
 
   return (
@@ -255,10 +278,35 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
               <CardTitle className="text-lg">
                 {type === "invoice" ? "Produits / Services" : "Prestations"}
               </CardTitle>
-              <Button variant="outline" size="sm" onClick={addLine} type="button">
-                <Plus className="mr-2 h-4 w-4" /> Ajouter une ligne
-              </Button>
+              <div className="flex gap-2">
+                {products.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={() => setShowProductPicker(!showProductPicker)} type="button">
+                    <Package className="mr-2 h-4 w-4" /> Du catalogue
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={addLine} type="button">
+                  <Plus className="mr-2 h-4 w-4" /> Ligne libre
+                </Button>
+              </div>
             </CardHeader>
+            {showProductPicker && (
+              <div className="px-6 pb-3">
+                <div className="rounded-lg border p-3 space-y-2 max-h-48 overflow-y-auto">
+                  {products.map((p: any) => (
+                    <button key={p.id} type="button" onClick={() => addProductLine(p)} className="w-full flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted transition-colors text-left">
+                      <div>
+                        <span className="font-medium">{p.name}</span>
+                        {p.unit && <span className="text-xs text-muted-foreground ml-2">/ {p.unit}</span>}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span>{Number(p.unit_price).toFixed(2)} MAD</span>
+                        <span className="bg-muted px-1.5 py-0.5 rounded">{p.default_tva_rate}%</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <CardContent className="space-y-3">
               {fields.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground py-4">
