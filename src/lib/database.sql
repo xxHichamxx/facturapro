@@ -201,3 +201,332 @@ CREATE POLICY "Public can view company via shared doc" ON companies
       WHERE d.company_id = companies.id AND d.view_token IS NOT NULL
     )
   );
+
+-- ============================================================
+-- ADMIN SYSTEM: User Profiles, Company Members, Roles
+-- ============================================================
+
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT,
+  is_super_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Trigger to auto-create profile on signup
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO user_profiles (id, full_name) VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+CREATE TABLE company_members (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'employee' CHECK (role IN ('owner', 'admin', 'employee', 'accountant', 'viewer')),
+  invited_at TIMESTAMPTZ DEFAULT NOW(),
+  joined_at TIMESTAMPTZ,
+  UNIQUE(company_id, user_id)
+);
+
+-- Auto-add owner as company_member on company creation
+CREATE OR REPLACE FUNCTION handle_new_company()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO company_members (company_id, user_id, role, joined_at)
+  VALUES (NEW.id, NEW.owner_id, 'owner', NOW());
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_company_created ON companies;
+CREATE TRIGGER on_company_created
+  AFTER INSERT ON companies
+  FOR EACH ROW EXECUTE FUNCTION handle_new_company();
+
+-- ============================================================
+-- PRODUCT CATALOG
+-- ============================================================
+
+CREATE TABLE product_categories (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE products (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  category_id UUID REFERENCES product_categories(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  unit_price NUMERIC DEFAULT 0,
+  default_tva_rate NUMERIC DEFAULT 20 CHECK (default_tva_rate >= 0 AND default_tva_rate <= 100),
+  unit TEXT DEFAULT 'unité',
+  sku TEXT,
+  reference TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- TAX RATES (configurable per company / per product)
+-- ============================================================
+
+CREATE TABLE tax_rates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  rate NUMERIC NOT NULL CHECK (rate >= 0 AND rate <= 100),
+  is_default BOOLEAN DEFAULT false,
+  applies_to TEXT DEFAULT 'all' CHECK (applies_to IN ('all', 'products', 'services')),
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Default Moroccan tax rates
+CREATE OR REPLACE FUNCTION create_default_tax_rates()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO tax_rates (company_id, name, rate, is_default, applies_to, description) VALUES
+    (NEW.id, 'TVA 20%', 20, true, 'all', 'Taux normal'),
+    (NEW.id, 'TVA 14%', 14, false, 'all', 'Taux réduit'),
+    (NEW.id, 'TVA 10%', 10, false, 'all', 'Taux réduit'),
+    (NEW.id, 'TVA 7%', 7, false, 'services', 'Taux super-réduit'),
+    (NEW.id, 'Exonéré', 0, false, 'all', 'Exonération de TVA');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_company_created_taxes ON companies;
+CREATE TRIGGER on_company_created_taxes
+  AFTER INSERT ON companies
+  FOR EACH ROW EXECUTE FUNCTION create_default_tax_rates();
+
+-- ============================================================
+-- TEMPLATES (invoice/quote design templates)
+-- ============================================================
+
+CREATE TABLE templates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'both' CHECK (type IN ('invoice', 'quote', 'both')),
+  description TEXT,
+  thumbnail_url TEXT,
+  is_default BOOLEAN DEFAULT false,
+  is_system BOOLEAN DEFAULT false,
+  config JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Seed system templates
+INSERT INTO templates (name, type, description, is_system, is_default, config) VALUES
+  ('Classique', 'both', 'Design professionnel classique avec en-tête bleu', true, true, '{"primaryColor":"#2E75B6","fontSize":10,"showLogo":true}'),
+  ('Moderne', 'both', 'Design épuré et moderne', true, false, '{"primaryColor":"#1E3A5F","fontSize":11,"showLogo":true}'),
+  ('Minimaliste', 'both', 'Design minimaliste sans fioritures', true, false, '{"primaryColor":"#333333","fontSize":9,"showLogo":false}')
+ON CONFLICT DO NOTHING;
+
+CREATE TABLE company_templates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  template_id UUID NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+  is_active BOOLEAN DEFAULT true,
+  UNIQUE(company_id, template_id)
+);
+
+-- Auto-assign all system templates to new companies
+CREATE OR REPLACE FUNCTION assign_templates_to_company()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO company_templates (company_id, template_id)
+  SELECT NEW.id, t.id FROM templates t WHERE t.is_system = true;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_company_created_templates ON companies;
+CREATE TRIGGER on_company_created_templates
+  AFTER INSERT ON companies
+  FOR EACH ROW EXECUTE FUNCTION assign_templates_to_company();
+
+-- ============================================================
+-- INDEXES for new tables
+-- ============================================================
+
+CREATE INDEX idx_company_members_company ON company_members(company_id);
+CREATE INDEX idx_company_members_user ON company_members(user_id);
+CREATE INDEX idx_products_company ON products(company_id);
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_product_categories_company ON product_categories(company_id);
+CREATE INDEX idx_tax_rates_company ON tax_rates(company_id);
+CREATE INDEX idx_company_templates_company ON company_templates(company_id);
+
+-- ============================================================
+-- RLS POLICIES for new tables
+-- ============================================================
+
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE company_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE product_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tax_rates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE company_templates ENABLE ROW LEVEL SECURITY;
+
+-- user_profiles
+CREATE POLICY "Users can view own profile" ON user_profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Super admins can view all profiles" ON user_profiles FOR SELECT USING (
+  EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Users can update own profile" ON user_profiles FOR UPDATE USING (auth.uid() = id);
+
+-- company_members
+CREATE POLICY "Company members visible to company users" ON company_members FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members cm WHERE cm.company_id = company_members.company_id AND cm.user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Owner can manage members" ON company_members FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_members.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Owner can update members" ON company_members FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_members.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Owner can delete members" ON company_members FOR DELETE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_members.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- products & categories
+CREATE POLICY "Company members can view products" ON products FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = products.company_id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Company members can manage products" ON products FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = products.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Company members can update products" ON products FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = products.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Company members can delete products" ON products FOR DELETE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = products.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+CREATE POLICY "Company members can view categories" ON product_categories FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = product_categories.company_id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Company members can manage categories" ON product_categories FOR ALL USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = product_categories.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- tax_rates
+CREATE POLICY "Company members can view tax rates" ON tax_rates FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = tax_rates.company_id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+CREATE POLICY "Company members can manage tax rates" ON tax_rates FOR ALL USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = tax_rates.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'accountant'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- templates (system-wide, readable by all)
+CREATE POLICY "Anyone can view templates" ON templates FOR SELECT USING (true);
+CREATE POLICY "Super admins can manage templates" ON templates FOR ALL USING (
+  EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- company_templates
+CREATE POLICY "Company members can view templates" ON company_templates FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_templates.company_id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- ============================================================
+-- UPDATE EXISTING RLS POLICIES to support company_members
+-- ============================================================
+
+-- Drop old company-member-based policies and recreate with company_members support
+DROP POLICY IF EXISTS "Company members can view clients" ON clients;
+CREATE POLICY "Company members can view clients" ON clients FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = clients.company_id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  OR EXISTS (SELECT 1 FROM documents d WHERE d.client_id = clients.id AND d.view_token IS NOT NULL)
+);
+
+DROP POLICY IF EXISTS "Company members can insert clients" ON clients;
+CREATE POLICY "Company members can insert clients" ON clients FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = clients.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+DROP POLICY IF EXISTS "Company members can update clients" ON clients;
+CREATE POLICY "Company members can update clients" ON clients FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = clients.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+DROP POLICY IF EXISTS "Company members can delete clients" ON clients;
+CREATE POLICY "Company members can delete clients" ON clients FOR DELETE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = clients.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- Update documents policies
+DROP POLICY IF EXISTS "Company members can view documents" ON documents;
+CREATE POLICY "Company members can view documents" ON documents FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = documents.company_id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  OR view_token IS NOT NULL
+);
+
+DROP POLICY IF EXISTS "Company members can insert documents" ON documents;
+CREATE POLICY "Company members can insert documents" ON documents FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = documents.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+DROP POLICY IF EXISTS "Company members can update documents" ON documents;
+CREATE POLICY "Company members can update documents" ON documents FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = documents.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin', 'employee'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+DROP POLICY IF EXISTS "Company members can delete documents" ON documents;
+CREATE POLICY "Company members can delete documents" ON documents FOR DELETE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = documents.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+);
+
+-- Update companies policies
+DROP POLICY IF EXISTS "Users can view own company" ON companies;
+CREATE POLICY "Users can view own company" ON companies FOR SELECT USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = companies.id AND user_id = auth.uid())
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  OR owner_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS "Users can update own company" ON companies;
+CREATE POLICY "Users can update own company" ON companies FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM company_members WHERE company_id = companies.id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
+  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  OR owner_id = auth.uid()
+);

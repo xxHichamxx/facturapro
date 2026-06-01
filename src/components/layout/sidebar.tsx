@@ -11,37 +11,39 @@ import {
   Quote,
   ChevronLeft,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
-
-const navigation = [
-  {
-    name: "Tableau de bord",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Factures",
-    href: "/dashboard/invoices",
-    icon: FileText,
-  },
-  {
-    name: "Devis",
-    href: "/dashboard/quotes",
-    icon: Quote,
-  },
-  {
-    name: "Clients",
-    href: "/dashboard/clients",
-    icon: Users,
-  },
-];
+import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect, useCallback } from "react";
 
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  const checkAdmin = useCallback(async () => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("is_super_admin")
+        .eq("id", user.id)
+        .single();
+      if (profile?.is_super_admin) setIsSuperAdmin(true);
+    }
+  }, []);
+
+  useEffect(() => { checkAdmin(); }, [checkAdmin]);
+
+  const navigation = [
+    { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Factures", href: "/dashboard/invoices", icon: FileText },
+    { name: "Devis", href: "/dashboard/quotes", icon: Quote },
+    { name: "Clients", href: "/dashboard/clients", icon: Users },
+  ];
 
   return (
     <aside
@@ -94,6 +96,23 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {isSuperAdmin && (
+        <div className="px-2 pb-1">
+          <Link
+            href="/admin"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              pathname.startsWith("/admin")
+                ? "bg-alert/10 text-alert"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
+            <Shield className="h-5 w-5 shrink-0" />
+            {!collapsed && <span>Administration</span>}
+          </Link>
+        </div>
+      )}
 
       <Separator />
 

@@ -10,6 +10,80 @@ export type DocumentStatus =
 
 export type Currency = "MAD" | "EUR" | "USD";
 
+export type CompanyRole = "owner" | "admin" | "employee" | "accountant" | "viewer";
+
+export interface UserProfile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  is_super_admin: boolean;
+  created_at: string;
+}
+
+export interface CompanyMember {
+  id: string;
+  company_id: string;
+  user_id: string;
+  role: CompanyRole;
+  invited_at: string;
+  joined_at: string | null;
+}
+
+export interface ProductCategory {
+  id: string;
+  company_id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Product {
+  id: string;
+  company_id: string;
+  category_id: string | null;
+  name: string;
+  description: string | null;
+  unit_price: number;
+  default_tva_rate: number;
+  unit: string;
+  sku: string | null;
+  reference: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaxRate {
+  id: string;
+  company_id: string;
+  name: string;
+  rate: number;
+  is_default: boolean;
+  applies_to: "all" | "products" | "services";
+  description: string | null;
+  created_at: string;
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  type: "invoice" | "quote" | "both";
+  description: string | null;
+  thumbnail_url: string | null;
+  is_default: boolean;
+  is_system: boolean;
+  config: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface CompanyTemplate {
+  id: string;
+  company_id: string;
+  template_id: string;
+  is_active: boolean;
+}
+
 export interface Company {
   id: string;
   name: string;
