@@ -37,7 +37,7 @@ export function SignupForm() {
 
     if (signUpData?.session) {
       toast.success("Compte créé ! Redirection...");
-      router.push("/dashboard");
+      router.push("/onboarding");
     } else {
       toast.success("Compte créé ! Vérifiez votre email pour confirmer.");
       router.push("/login");
