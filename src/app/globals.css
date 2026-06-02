@@ -6,26 +6,28 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #1e293b;
+    --background: #f5f5f7;
+    --foreground: #1d1d1f;
     --card: #ffffff;
-    --card-foreground: #1e293b;
-    --border: #e2e8f0;
-    --input: #e2e8f0;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --radius: 0.5rem;
+    --card-foreground: #1d1d1f;
+    --border: #d2d2d7;
+    --input: #e8e8ed;
+    --muted: #f5f5f7;
+    --muted-foreground: #86868b;
+    --ring: #0071e3;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
-    --card: #1e293b;
-    --card-foreground: #f1f5f9;
-    --border: #334155;
-    --input: #334155;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
+    --background: #000000;
+    --foreground: #f5f5f7;
+    --card: #1c1c1e;
+    --card-foreground: #f5f5f7;
+    --border: #38383a;
+    --input: #38383a;
+    --muted: #2c2c2e;
+    --muted-foreground: #98989d;
+    --ring: #409cff;
   }
 
   * {
@@ -33,9 +35,11 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: "Inter", system-ui, sans-serif;
-    font-size: 14px;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, system-ui, sans-serif;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -45,26 +49,27 @@
   }
 
   .status-draft {
-    @apply bg-gray-100 text-gray-700;
+    @apply bg-gray-100 text-gray-600;
   }
 
   .status-sent {
-    @apply bg-blue-100 text-blue-700;
+    @apply bg-blue-50 text-blue-600;
   }
 
   .status-viewed {
-    @apply bg-purple-100 text-purple-700;
+    @apply bg-purple-50 text-purple-600;
   }
 
   .status-accepted {
-    @apply bg-green-100 text-green-700;
+    @apply bg-green-50 text-green-600;
   }
 
   .status-paid {
-    @apply bg-emerald-100 text-emerald-700;
+    @apply bg-emerald-50 text-emerald-600;
   }
 
   .status-overdue {
-    @apply bg-red-100 text-red-700;
+    @apply bg-red-50 text-red-600;
   }
 }
+

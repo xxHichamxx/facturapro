@@ -11,14 +11,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#2E75B6",
-        "primary-dark": "#1E3A5F",
-        success: {
-          DEFAULT: "#70AD47",
-          dark: "#375623",
+        primary: {
+          DEFAULT: "#0071e3",
+          dark: "#0066cc",
+          light: "#409cff",
         },
-        alert: "#C00000",
-        neutral: "#F4F6F9",
+        "primary-dark": "#1d1d1f",
+        success: {
+          DEFAULT: "#34c759",
+          dark: "#248a3d",
+        },
+        alert: {
+          DEFAULT: "#ff3b30",
+          dark: "#d32f2f",
+        },
+        neutral: "#f5f5f7",
         background: "var(--background)",
         foreground: "var(--foreground)",
         card: "var(--card)",
@@ -27,12 +34,22 @@ const config: Config = {
         input: "var(--input)",
         muted: "var(--muted)",
         "muted-foreground": "var(--muted-foreground)",
+        ring: "var(--ring)",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "\"SF Pro Display\"",
+          "\"SF Pro Text\"",
+          "\"Helvetica Neue\"",
+          "Inter",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       fontSize: {
-        body: ["14px", { lineHeight: "1.5" }],
+        body: ["15px", { lineHeight: "1.5", letterSpacing: "-0.01em" }],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -44,3 +61,4 @@ const config: Config = {
   plugins: [animate],
 };
 export default config;
+

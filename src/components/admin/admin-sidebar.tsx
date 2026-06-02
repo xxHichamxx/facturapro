@@ -37,14 +37,14 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r bg-card transition-all duration-300",
+        "flex h-screen flex-col bg-[#f5f5f7]/80 backdrop-blur-xl transition-all duration-300",
         collapsed ? "w-16" : "w-64",
       )}
     >
-      <div className="flex h-14 items-center border-b px-4">
+      <div className="flex h-14 items-center px-4">
         <Link href="/admin" className="flex items-center gap-2">
-          <Shield className="h-6 w-6 shrink-0 text-alert" />
-          {!collapsed && <span className="text-lg font-bold text-alert">Admin</span>}
+          <Shield className="h-6 w-6 shrink-0 text-primary" />
+          {!collapsed && <span className="text-lg font-bold text-foreground">Admin</span>}
         </Link>
         <Button
           variant="ghost"
@@ -64,10 +64,10 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-alert/10 text-alert"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "bg-[#e8e8ed] text-foreground"
+                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground",
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
@@ -80,7 +80,7 @@ export function AdminSidebar() {
       <div className="p-2">
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground transition-all duration-200"
         >
           <ArrowLeft className="h-5 w-5" />
           {!collapsed && <span>Retour &agrave; l&apos;app</span>}
