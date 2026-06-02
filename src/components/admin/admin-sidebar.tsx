@@ -67,8 +67,8 @@ export function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-[#e8e8ed] text-foreground"
-                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground",
+                  ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white"
+                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white",
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
@@ -85,7 +85,7 @@ export function AdminSidebar() {
       <div className="p-2 pt-0">
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground transition-all duration-200"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white transition-all duration-200"
         >
           <ArrowLeft className="h-5 w-5" />
           {!collapsed && <span>Retour &agrave; l&apos;app</span>}

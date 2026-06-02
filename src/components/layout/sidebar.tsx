@@ -89,8 +89,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-[#e8e8ed] text-foreground"
-                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground",
+                  ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white"
+                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white",
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
@@ -101,10 +101,10 @@ export function Sidebar() {
       </nav>
 
       <div className="px-2 pb-1 space-y-0.5">
-        <Link href="/dashboard/products" className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition-all duration-200", pathname.startsWith("/dashboard/products") ? "bg-[#e8e8ed] text-foreground" : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground")}>
+        <Link href="/dashboard/products" className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition-all duration-200", pathname.startsWith("/dashboard/products") ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white" : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white")}>
           <Package className="h-5 w-5 shrink-0" />{!collapsed && <span>Produits</span>}
         </Link>
-        <Link href="/dashboard/settings" className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition-all duration-200", pathname.startsWith("/dashboard/settings") ? "bg-[#e8e8ed] text-foreground" : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground")}>
+        <Link href="/dashboard/settings" className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition-all duration-200", pathname.startsWith("/dashboard/settings") ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white" : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white")}>
           <Settings className="h-5 w-5 shrink-0" />{!collapsed && <span>Param&egrave;tres</span>}
         </Link>
       </div>
@@ -116,8 +116,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition-all duration-200",
                 pathname.startsWith("/admin")
-                  ? "bg-[#e8e8ed] text-foreground"
-                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground",
+                  ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white"
+                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white",
               )}
           >
             <Shield className="h-5 w-5 shrink-0" />
@@ -141,7 +141,7 @@ export function Sidebar() {
         <Link
           href="/dashboard/new-quote"
           className={cn(
-            "mt-2 flex items-center gap-3 rounded-xl bg-[#e8e8ed] px-3 py-2.5 text-[15px] font-medium text-foreground transition-all duration-200 hover:bg-[#dcdce0]",
+            "mt-2 flex items-center gap-3 rounded-xl bg-[#e8e8ed] px-3 py-2.5 text-[15px] font-medium text-foreground transition-all duration-200 hover:bg-[#dcdce0] dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.12]",
           )}
         >
           <Quote className="h-5 w-5 shrink-0" />
