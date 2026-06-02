@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect, useCallback } from "react";
 
@@ -50,7 +51,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col bg-[#f5f5f7]/80 backdrop-blur-xl transition-all duration-300",
+        "flex h-screen flex-col glass-sidebar transition-all duration-300",
         collapsed ? "w-16" : "w-64",
       )}
     >
@@ -149,6 +150,10 @@ export function Sidebar() {
       </div>
 
       <div className="p-2">
+        <ThemeToggle />
+      </div>
+
+      <div className="p-2 pt-0">
         <form action="/auth/signout" method="post">
           <Button
             variant="ghost"

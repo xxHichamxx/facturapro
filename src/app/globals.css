@@ -19,13 +19,13 @@
   }
 
   .dark {
-    --background: #000000;
+    --background: #0a0a0a;
     --foreground: #f5f5f7;
-    --card: #1c1c1e;
+    --card: rgba(255, 255, 255, 0.06);
     --card-foreground: #f5f5f7;
-    --border: #38383a;
-    --input: #38383a;
-    --muted: #2c2c2e;
+    --border: rgba(255, 255, 255, 0.08);
+    --input: rgba(255, 255, 255, 0.1);
+    --muted: rgba(255, 255, 255, 0.05);
     --muted-foreground: #98989d;
     --ring: #409cff;
   }
@@ -70,6 +70,48 @@
 
   .status-overdue {
     @apply bg-red-50 text-red-600;
+  }
+
+  .dark .status-draft {
+    @apply bg-white/10 text-gray-300;
+  }
+
+  .dark .status-sent {
+    @apply bg-blue-500/15 text-blue-400;
+  }
+
+  .dark .status-viewed {
+    @apply bg-purple-500/15 text-purple-400;
+  }
+
+  .dark .status-accepted {
+    @apply bg-green-500/15 text-green-400;
+  }
+
+  .dark .status-paid {
+    @apply bg-emerald-500/15 text-emerald-400;
+  }
+
+  .dark .status-overdue {
+    @apply bg-red-500/15 text-red-400;
+  }
+
+  .glass {
+    @apply backdrop-blur-2xl bg-white/70 dark:bg-white/[0.03];
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-sidebar {
+    @apply backdrop-blur-2xl bg-[#f5f5f7]/70 dark:bg-black/40;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-2xl;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.05);
   }
 }
 

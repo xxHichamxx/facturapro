@@ -16,7 +16,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-[42px] w-full items-center justify-between rounded-[10px] border-0 bg-[#e8e8ed] px-4 py-2 text-[15px] text-foreground placeholder:text-[#86868b] focus:outline-none focus:ring-2 focus:ring-ring focus:bg-white disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 transition-colors",
+      "flex h-[42px] w-full items-center justify-between rounded-[10px] border-0 bg-[#e8e8ed] dark:bg-white/[0.08] dark:text-[#f5f5f7] px-4 py-2 text-[15px] text-foreground placeholder:text-[#86868b] dark:placeholder:text-[#98989d] focus:outline-none focus:ring-2 focus:ring-ring dark:focus:bg-white/[0.12] focus:bg-white disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 transition-all duration-200",
       className,
     )}
     {...props}
@@ -37,7 +37,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-card text-card-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border-0 bg-card text-card-foreground shadow-lg ring-1 ring-black/5 dark:ring-white/10 backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className,

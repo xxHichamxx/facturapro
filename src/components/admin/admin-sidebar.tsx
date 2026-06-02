@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useState } from "react";
 
 const navItems = [
@@ -37,7 +38,7 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col bg-[#f5f5f7]/80 backdrop-blur-xl transition-all duration-300",
+        "flex h-screen flex-col glass-sidebar transition-all duration-300",
         collapsed ? "w-16" : "w-64",
       )}
     >
@@ -78,6 +79,10 @@ export function AdminSidebar() {
       </nav>
 
       <div className="p-2">
+        <ThemeToggle />
+      </div>
+
+      <div className="p-2 pt-0">
         <Link
           href="/dashboard"
           className="flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground transition-all duration-200"
