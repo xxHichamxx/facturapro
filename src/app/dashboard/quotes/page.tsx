@@ -32,7 +32,7 @@ export default async function QuotesPage() {
     .from("companies")
     .select("id, default_currency")
     .eq("owner_id", user!.id)
-    .single();
+    .limit(1).maybeSingle();
 
   const { data: quotes } = await supabase
     .from("documents")

@@ -1,5 +1,4 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -40,62 +39,59 @@ export default async function DashboardPage() {
     .from("companies")
     .select("*")
     .eq("owner_id", user!.id)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
-  if (!company) {
-    redirect("/onboarding");
-  }
-
-  const { data: documents } = await supabase
+  const { data: documents } = company ? await supabase
     .from("documents")
     .select("*, client:clients(name)")
     .eq("company_id", company.id)
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(10) : { data: null };
 
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
 
-  const { data: monthlyDocs } = await supabase
+  const { data: monthlyDocs } = company ? await supabase
     .from("documents")
     .select("total_ttc, status")
     .eq("company_id", company.id)
     .eq("type", "invoice")
-    .gte("issue_date", currentMonthStart);
+    .gte("issue_date", currentMonthStart) : { data: null };
 
   const monthlyRevenue =
     monthlyDocs
       ?.filter((d) => d.status === "paid")
       .reduce((sum, d) => sum + Number(d.total_ttc), 0) ?? 0;
 
-  const { data: pendingInvoices } = await supabase
+  const { data: pendingInvoices } = company ? await supabase
     .from("documents")
     .select("id", { count: "exact", head: true })
     .eq("company_id", company.id)
     .eq("type", "invoice")
-    .in("status", ["sent", "viewed"]);
+    .in("status", ["sent", "viewed"]) : { data: null };
 
   const pendingCount = pendingInvoices?.length ?? 0;
 
-  const { count: overdueCount } = await supabase
+  const { count: overdueCount } = company ? await supabase
     .from("documents")
     .select("*", { count: "exact", head: true })
     .eq("company_id", company.id)
-    .eq("status", "overdue");
+    .eq("status", "overdue") : { count: 0 };
 
   const overdueValue = overdueCount ?? 0;
 
-  const { count: quotesCount } = await supabase
+  const { count: quotesCount } = company ? await supabase
     .from("documents")
     .select("*", { count: "exact", head: true })
     .eq("company_id", company.id)
     .eq("type", "quote")
-    .in("status", ["draft", "sent"]);
+    .in("status", ["draft", "sent"]) : { count: 0 };
 
   const kpis = [
     {
       title: "CA du mois",
-      value: formatCurrency(monthlyRevenue, company.default_currency),
+      value: formatCurrency(monthlyRevenue, company?.default_currency ?? "MAD"),
       icon: DollarSign,
       color: "text-success",
       bg: "bg-success/10",
@@ -128,7 +124,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary-dark">
-            {company.name}
+            {company?.name ?? "Tableau de bord"}
           </h1>
           <p className="text-sm text-muted-foreground">
             Tableau de bord

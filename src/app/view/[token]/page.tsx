@@ -16,7 +16,7 @@ export default async function PublicViewPage({
     .from("documents")
     .select("*, client:clients(*), company:companies(*)")
     .eq("view_token", params.token)
-    .single();
+    .maybeSingle();
 
   if (!document) notFound();
 

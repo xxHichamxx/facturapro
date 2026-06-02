@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function EditCompanyPage({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient();
-  const { data: company } = await supabase.from("companies").select("*").eq("id", params.id).single();
+  const { data: company } = await supabase.from("companies").select("*").eq("id", params.id).maybeSingle();
   if (!company) notFound();
 
   return (

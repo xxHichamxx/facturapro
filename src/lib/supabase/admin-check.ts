@@ -10,7 +10,7 @@ export async function requireSuperAdmin() {
     .from("user_profiles")
     .select("is_super_admin")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!profile?.is_super_admin) redirect("/dashboard");
 
@@ -26,7 +26,7 @@ export async function getCurrentUserProfile() {
     .from("user_profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   return profile;
 }

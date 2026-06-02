@@ -12,11 +12,9 @@ export default async function NewInvoicePage() {
     .from("companies")
     .select("*")
     .eq("owner_id", user!.id)
-    .single();
+    .limit(1).maybeSingle();
 
-  if (!company) {
-    redirect("/onboarding");
-  }
+  if (!company) redirect("/dashboard");
 
   const { data: clients } = await supabase
     .from("clients")

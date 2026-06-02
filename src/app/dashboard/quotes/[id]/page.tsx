@@ -31,13 +31,13 @@ export default async function QuoteDetailPage({
     .from("companies")
     .select("*")
     .eq("owner_id", user!.id)
-    .single();
+    .limit(1).maybeSingle();
 
   const { data: document } = await supabase
     .from("documents")
     .select("*, client:clients(*)")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
 
   if (!document) notFound();
 

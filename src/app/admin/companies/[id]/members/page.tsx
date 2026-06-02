@@ -28,7 +28,7 @@ export default async function CompanyMembersPage({ params }: { params: { id: str
     .from("companies")
     .select("name")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
   if (!company) notFound();
 
   const { data: members } = await supabase

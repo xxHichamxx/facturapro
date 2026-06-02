@@ -15,8 +15,8 @@ export default async function ProductsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: company } = await supabase.from("companies").select("id").eq("owner_id", user.id).single();
-  if (!company) redirect("/onboarding");
+  const { data: company } = await supabase.from("companies").select("id").eq("owner_id", user.id).limit(1).maybeSingle();
+  if (!company) redirect("/dashboard");
 
   const { data: products } = await supabase.from("products").select("*, category:category_id(name)").eq("company_id", company.id).order("name");
   const { data: categories } = await supabase.from("product_categories").select("*").eq("company_id", company.id).order("name");

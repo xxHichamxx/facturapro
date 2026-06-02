@@ -23,7 +23,7 @@ export default async function ClientsPage() {
     .from("companies")
     .select("id")
     .eq("owner_id", user!.id)
-    .single();
+    .limit(1).maybeSingle();
 
   const { data: clients } = await supabase
     .from("clients")

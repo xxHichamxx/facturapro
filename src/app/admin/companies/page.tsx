@@ -19,8 +19,8 @@ export default async function CompaniesManagePage() {
   const supabase = await createServerSupabaseClient();
 
   const { data: companies } = await supabase
-    .from("companies")
-    .select("*, owner:owner_id(email), members:company_members(count)")
+    .from("companies_view")
+    .select("*")
     .order("created_at", { ascending: false });
 
   const { data: companyMemberCounts } = await supabase
@@ -28,8 +28,8 @@ export default async function CompaniesManagePage() {
     .select("company_id");
 
   const memberCounts: Record<string, number> = {};
-  companyMemberCounts?.forEach((m) => {
-    memberCounts[m.company_id] = (memberCounts[m.company_id] || 0) + 1;
+  companyMemberCounts?.forEach((row: any) => {
+    memberCounts[row.company_id] = (memberCounts[row.company_id] ?? 0) + 1;
   });
 
   return (
@@ -68,7 +68,7 @@ export default async function CompaniesManagePage() {
                   <TableCell className="font-medium">{c.name}</TableCell>
                   <TableCell>{c.city}</TableCell>
                   <TableCell className="font-mono text-xs">{c.ice}</TableCell>
-                  <TableCell>{c.owner?.email ?? "—"}</TableCell>
+                  <TableCell>{c.owner_email ?? "—"}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">{memberCounts[c.id] ?? 0}</Badge>
                   </TableCell>

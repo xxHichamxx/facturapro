@@ -16,15 +16,15 @@ export default async function EditInvoicePage({
     .from("companies")
     .select("*")
     .eq("owner_id", user!.id)
-    .single();
+    .limit(1).maybeSingle();
 
-  if (!company) redirect("/onboarding");
+  if (!company) redirect("/dashboard");
 
   const { data: document } = await supabase
     .from("documents")
     .select("*")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
 
   if (!document) notFound();
 

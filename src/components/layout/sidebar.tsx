@@ -33,7 +33,7 @@ export function Sidebar() {
         .from("user_profiles")
         .select("is_super_admin")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
       if (profile?.is_super_admin) setIsSuperAdmin(true);
     }
   }, []);
@@ -80,7 +80,7 @@ export function Sidebar() {
 
       <nav className="flex-1 space-y-1 p-2">
         {navigation.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.href}

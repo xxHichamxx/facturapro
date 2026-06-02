@@ -20,8 +20,7 @@ CREATE TABLE companies (
   default_tva_rate NUMERIC DEFAULT 20 CHECK (default_tva_rate >= 0 AND default_tva_rate <= 20),
   invoice_prefix TEXT DEFAULT 'FAC',
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  owner_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  UNIQUE(owner_id)
+  owner_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
 );
 
 -- Clients table
@@ -375,6 +374,40 @@ CREATE INDEX idx_tax_rates_company ON tax_rates(company_id);
 CREATE INDEX idx_company_templates_company ON company_templates(company_id);
 
 -- ============================================================
+-- SECURITY DEFINER helper functions (bypass RLS to avoid recursion)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.get_user_company_ids(check_user_id UUID)
+RETURNS SETOF UUID
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT company_id FROM public.company_members WHERE user_id = check_user_id;
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_super_admin(uid UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (SELECT 1 FROM public.user_profiles WHERE id = uid AND is_super_admin = true);
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_user_company_role(uid UUID, cid UUID)
+RETURNS TEXT
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT role FROM public.company_members WHERE user_id = uid AND company_id = cid;
+$$;
+
+-- ============================================================
 -- RLS POLICIES for new tables
 -- ============================================================
 
@@ -389,26 +422,26 @@ ALTER TABLE company_templates ENABLE ROW LEVEL SECURITY;
 -- user_profiles
 CREATE POLICY "Users can view own profile" ON user_profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Super admins can view all profiles" ON user_profiles FOR SELECT USING (
-  EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  public.is_super_admin(auth.uid())
 );
 CREATE POLICY "Users can update own profile" ON user_profiles FOR UPDATE USING (auth.uid() = id);
 
 -- company_members
 CREATE POLICY "Company members visible to company users" ON company_members FOR SELECT USING (
-  EXISTS (SELECT 1 FROM company_members cm WHERE cm.company_id = company_members.company_id AND cm.user_id = auth.uid())
-  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  company_id IN (SELECT public.get_user_company_ids(auth.uid()))
+  OR public.is_super_admin(auth.uid())
 );
 CREATE POLICY "Owner can manage members" ON company_members FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_members.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
-  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  public.get_user_company_role(auth.uid(), company_id) IN ('owner', 'admin')
+  OR public.is_super_admin(auth.uid())
 );
 CREATE POLICY "Owner can update members" ON company_members FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_members.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
-  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  public.get_user_company_role(auth.uid(), company_id) IN ('owner', 'admin')
+  OR public.is_super_admin(auth.uid())
 );
 CREATE POLICY "Owner can delete members" ON company_members FOR DELETE USING (
-  EXISTS (SELECT 1 FROM company_members WHERE company_id = company_members.company_id AND user_id = auth.uid() AND role IN ('owner', 'admin'))
-  OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
+  public.get_user_company_role(auth.uid(), company_id) IN ('owner', 'admin')
+  OR public.is_super_admin(auth.uid())
 );
 
 -- products & categories
@@ -530,3 +563,15 @@ CREATE POLICY "Users can update own company" ON companies FOR UPDATE USING (
   OR EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_super_admin = true)
   OR owner_id = auth.uid()
 );
+
+-- ============================================================
+-- VIEWS
+-- ============================================================
+
+CREATE OR REPLACE VIEW public.companies_view AS
+SELECT c.*, u.email AS owner_email
+FROM public.companies c
+LEFT JOIN auth.users u ON u.id = c.owner_id;
+
+-- Grant access to the view
+GRANT SELECT ON public.companies_view TO authenticated, anon, service_role;

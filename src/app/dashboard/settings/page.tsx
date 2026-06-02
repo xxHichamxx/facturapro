@@ -9,8 +9,8 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: company } = await supabase.from("companies").select("*").eq("owner_id", user.id).single();
-  if (!company) redirect("/onboarding");
+  const { data: company } = await supabase.from("companies").select("*").eq("owner_id", user.id).limit(1).maybeSingle();
+  if (!company) redirect("/dashboard");
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">

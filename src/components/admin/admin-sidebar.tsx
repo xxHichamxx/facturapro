@@ -13,15 +13,19 @@ import {
   ChevronLeft,
   Shield,
   ArrowLeft,
+  FileText,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const navItems = [
-  { name: "Vue d'ensemble", href: "/admin", icon: LayoutDashboard },
+  { name: "Vue d'ensemble", href: "/admin", icon: LayoutDashboard, exact: true },
   { name: "Entreprises", href: "/admin/companies", icon: Building2 },
+  { name: "Utilisateurs", href: "/admin/users", icon: Users },
   { name: "Produits", href: "/admin/products", icon: Package },
   { name: "Catégories", href: "/admin/categories", icon: Tags },
+  { name: "Documents", href: "/admin/documents", icon: FileText },
   { name: "Templates", href: "/admin/templates", icon: Palette },
   { name: "Taxes", href: "/admin/taxes", icon: Percent },
 ];
@@ -54,7 +58,7 @@ export function AdminSidebar() {
 
       <nav className="flex-1 space-y-1 p-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.href}
