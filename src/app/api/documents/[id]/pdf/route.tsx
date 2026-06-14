@@ -44,9 +44,12 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("PDF generation error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : "";
+    console.error("PDF generation error:", message);
+    console.error("PDF generation stack:", stack);
     return NextResponse.json(
-      { error: "Erreur lors de la génération du PDF" },
+      { error: "Erreur lors de la génération du PDF", details: message },
       { status: 500 },
     );
   }
