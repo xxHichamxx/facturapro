@@ -1,7 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, amountToFrenchWords } from "@/lib/utils";
 import { FileText } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -126,6 +126,15 @@ export default async function PublicViewPage({
                   <span>{formatCurrency(Number(document.total_ttc), document.currency)}</span>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <p className="text-sm font-medium text-primary-dark">
+                Arrêter la présente {document.type === "invoice" ? "facture" : "devis"} à la somme de :
+              </p>
+              <p className="text-base font-semibold italic">
+                {amountToFrenchWords(Number(document.total_ttc), document.currency)}
+              </p>
             </div>
 
             {(document.notes || document.payment_terms || document.at_number) && (

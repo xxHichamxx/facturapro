@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
 } from "@react-pdf/renderer";
+import { amountToFrenchWords } from "@/lib/utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -197,6 +198,16 @@ export function InvoicePDF({ document, lines }: { document: any; lines: any[] })
               {Number(document.total_ttc).toFixed(2)} {document.currency}
             </Text>
           </View>
+        </View>
+
+        {/* Amount in words */}
+        <View style={[styles.notes, { marginTop: 10 }]}>
+          <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 2 }}>
+            Arrêter la présente {document.type === "invoice" ? "facture" : "devis"} à la somme de :
+          </Text>
+          <Text style={{ fontSize: 9, fontStyle: "italic" }}>
+            {amountToFrenchWords(Number(document.total_ttc), document.currency)}
+          </Text>
         </View>
 
         {/* Notes */}

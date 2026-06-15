@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, amountToFrenchWords } from "@/lib/utils";
 import { DocumentActions } from "@/components/documents/document-actions";
 import Link from "next/link";
 import { ArrowLeft, Download, Printer } from "lucide-react";
@@ -183,6 +183,15 @@ export default async function InvoiceDetailPage({
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+            <p className="text-sm font-medium text-primary-dark">
+              Arrêter la présente facture à la somme de :
+            </p>
+            <p className="text-base font-semibold italic">
+              {amountToFrenchWords(Number(document.total_ttc), document.currency)}
+            </p>
           </div>
 
           {document.notes && (
