@@ -46,6 +46,9 @@ interface InitialData {
   lines?: LineData[];
   notes?: string;
   payment_terms?: string;
+  at_number?: string;
+  at_date?: string;
+  at_bureau?: string;
 }
 
 interface Props {
@@ -76,6 +79,9 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
       ],
       notes: initialData?.notes ?? "",
       payment_terms: initialData?.payment_terms ?? "",
+      at_number: initialData?.at_number ?? "",
+      at_date: initialData?.at_date ?? "",
+      at_bureau: initialData?.at_bureau ?? "",
     },
   });
 
@@ -113,6 +119,9 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
           total_ttc: totalTTC,
           notes: data.notes,
           payment_terms: data.payment_terms,
+          at_number: data.at_number || null,
+          at_date: data.at_date || null,
+          at_bureau: data.at_bureau || null,
         })
         .eq("id", documentId);
 
@@ -158,6 +167,9 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
           subtotal_ht: subtotalHT,
           tva_amount: totalTVA,
           total_ttc: totalTTC,
+          at_number: data.at_number || null,
+          at_date: data.at_date || null,
+          at_bureau: data.at_bureau || null,
         }),
       });
 
@@ -397,6 +409,37 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
                   id="payment_terms"
                   {...register("payment_terms")}
                   placeholder="Paiement à réception, virement bancaire..."
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Admission Temporaire (AT)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Remplissez cette section si le document est lié à une admission temporaire.
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="at_number">Numéro AT</Label>
+                <Input
+                  id="at_number"
+                  {...register("at_number")}
+                  placeholder="Ex: AT/2026/001234"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="at_date">Date AT</Label>
+                <Input id="at_date" type="date" {...register("at_date")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="at_bureau">Bureau de douane</Label>
+                <Input
+                  id="at_bureau"
+                  {...register("at_bureau")}
+                  placeholder="Ex: Casablanca Port"
                 />
               </div>
             </CardContent>

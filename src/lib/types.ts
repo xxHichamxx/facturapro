@@ -133,6 +133,9 @@ export interface Document {
   payment_terms: string | null;
   pdf_url: string | null;
   view_token: string | null;
+  at_number: string | null;
+  at_date: string | null;
+  at_bureau: string | null;
   created_at: string;
   updated_at: string;
 }

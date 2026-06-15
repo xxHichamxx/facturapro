@@ -199,6 +199,14 @@ export default async function InvoiceDetailPage({
               </p>
             </div>
           )}
+          {document.at_number && (
+            <div className="mt-2 rounded-lg bg-muted p-4">
+              <p className="text-sm font-medium">Admission Temporaire</p>
+              <p className="text-sm text-muted-foreground">
+                AT N°: {document.at_number}{document.at_date ? ` — Date: ${document.at_date}` : ""}{document.at_bureau ? ` — Bureau: ${document.at_bureau}` : ""}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

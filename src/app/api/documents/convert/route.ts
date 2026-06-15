@@ -62,6 +62,9 @@ export async function POST(request: Request) {
       notes: quote.notes,
       payment_terms: quote.payment_terms,
       view_token: uuidv4(),
+      at_number: quote.at_number,
+      at_date: quote.at_date,
+      at_bureau: quote.at_bureau,
     })
     .select()
     .single();

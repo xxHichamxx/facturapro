@@ -40,6 +40,9 @@ export const documentSchema = z.object({
   notes: z.string().optional(),
   payment_terms: z.string().optional(),
   acompte: z.number().min(0).optional(),
+  at_number: z.string().optional(),
+  at_date: z.string().optional(),
+  at_bureau: z.string().optional(),
 });
 
 export type CompanyFormData = z.infer<typeof companySchema>;

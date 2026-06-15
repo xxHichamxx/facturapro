@@ -171,6 +171,31 @@ export default async function QuoteDetailPage({
               </div>
             </div>
           </div>
+
+          {(document.notes || document.payment_terms || document.at_number) && (
+            <div className="mt-6 space-y-2">
+              {document.notes && (
+                <div className="rounded-lg bg-muted p-4">
+                  <p className="text-sm font-medium">Notes</p>
+                  <p className="text-sm text-muted-foreground">{document.notes}</p>
+                </div>
+              )}
+              {document.payment_terms && (
+                <div className="rounded-lg bg-muted p-4">
+                  <p className="text-sm font-medium">Conditions de paiement</p>
+                  <p className="text-sm text-muted-foreground">{document.payment_terms}</p>
+                </div>
+              )}
+              {document.at_number && (
+                <div className="rounded-lg bg-muted p-4">
+                  <p className="text-sm font-medium">Admission Temporaire</p>
+                  <p className="text-sm text-muted-foreground">
+                    AT N°: {document.at_number}{document.at_date ? ` — Date: ${document.at_date}` : ""}{document.at_bureau ? ` — Bureau: ${document.at_bureau}` : ""}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

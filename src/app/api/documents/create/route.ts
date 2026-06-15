@@ -26,6 +26,9 @@ export async function POST(request: Request) {
   const subtotal_ht = body.subtotal_ht;
   const tva_amount = body.tva_amount;
   const total_ttc = body.total_ttc;
+  const at_number = body.at_number || null;
+  const at_date = body.at_date || null;
+  const at_bureau = body.at_bureau || null;
 
   let number: string;
   try {
@@ -53,6 +56,9 @@ export async function POST(request: Request) {
       notes,
       payment_terms,
       view_token: viewToken,
+      at_number,
+      at_date,
+      at_bureau,
     })
     .select()
     .single();

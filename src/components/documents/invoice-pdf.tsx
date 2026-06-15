@@ -200,13 +200,21 @@ export function InvoicePDF({ document, lines }: { document: any; lines: any[] })
         </View>
 
         {/* Notes */}
-        {(document.notes || document.payment_terms) && (
+        {(document.notes || document.payment_terms || document.at_number) && (
           <View style={styles.notes}>
             {document.notes && <Text>{document.notes}</Text>}
             {document.payment_terms && (
               <Text style={{ marginTop: 4 }}>
                 Conditions: {document.payment_terms}
               </Text>
+            )}
+            {document.at_number && (
+              <View style={{ marginTop: 6, borderTopWidth: 1, borderTopColor: "#E2E8F0", paddingTop: 6 }}>
+                <Text style={{ fontWeight: "bold", fontSize: 9 }}>Admission Temporaire</Text>
+                <Text style={{ fontSize: 8 }}>AT N°: {document.at_number}</Text>
+                {document.at_date && <Text style={{ fontSize: 8 }}>Date AT: {document.at_date}</Text>}
+                {document.at_bureau && <Text style={{ fontSize: 8 }}>Bureau: {document.at_bureau}</Text>}
+              </View>
             )}
           </View>
         )}

@@ -56,6 +56,9 @@ CREATE TABLE documents (
   payment_terms TEXT,
   pdf_url TEXT,
   view_token TEXT UNIQUE,
+  at_number TEXT,
+  at_date DATE,
+  at_bureau TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
