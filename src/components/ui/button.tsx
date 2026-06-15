@@ -4,20 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shopify-focus focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default: "bg-primary text-white hover:bg-primary-dark shadow-sm",
-        destructive: "bg-alert text-white hover:bg-alert-dark shadow-sm",
+        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
         outline:
-          "border border-shopify-border bg-white text-shopify-text hover:bg-shopify-surface-hover shadow-sm",
+          "border border-gray-200 bg-white text-gray-900 hover:bg-gray-50 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
         secondary:
-          "bg-shopify-surface-subdued text-shopify-text hover:bg-shopify-surface-hover",
+          "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
         ghost:
-          "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text",
+          "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white",
         link: "text-primary underline-offset-4 hover:underline",
-        success: "bg-success text-white hover:bg-success-dark shadow-sm",
+        success: "bg-green-600 text-white hover:bg-green-700 shadow-sm",
       },
       size: {
         default: "h-9 px-4 py-2",
