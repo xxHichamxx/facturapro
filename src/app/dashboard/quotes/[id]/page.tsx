@@ -30,7 +30,7 @@ export default async function QuoteDetailPage({
   const { data: company } = await supabase
     .from("companies")
     .select("*")
-    .eq("owner_id", user!.id)
+    .eq("owner_id", user?.id ?? "")
     .limit(1).maybeSingle();
 
   const { data: document } = await supabase

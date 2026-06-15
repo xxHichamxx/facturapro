@@ -11,7 +11,7 @@ export default async function NewQuotePage() {
   const { data: company } = await supabase
     .from("companies")
     .select("*")
-    .eq("owner_id", user!.id)
+    .eq("owner_id", user?.id ?? "")
     .limit(1).maybeSingle();
 
   if (!company) redirect("/dashboard");

@@ -31,7 +31,7 @@ export default async function InvoicesPage() {
   const { data: company } = await supabase
     .from("companies")
     .select("id, default_currency")
-    .eq("owner_id", user!.id)
+    .eq("owner_id", user?.id ?? "")
     .limit(1).maybeSingle();
 
   const { data: invoices } = await supabase

@@ -31,7 +31,7 @@ export default async function QuotesPage() {
   const { data: company } = await supabase
     .from("companies")
     .select("id, default_currency")
-    .eq("owner_id", user!.id)
+    .eq("owner_id", user?.id ?? "")
     .limit(1).maybeSingle();
 
   const { data: quotes } = await supabase
