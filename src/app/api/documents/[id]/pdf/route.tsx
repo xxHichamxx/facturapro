@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import ReactPDF from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/components/documents/invoice-pdf";
 
 export async function GET(
@@ -33,9 +33,17 @@ export async function GET(
     .order("position");
 
   try {
-    const buffer = await ReactPDF.renderToBuffer(
+    const instance = pdf(
       <InvoicePDF document={document} lines={lines ?? []} />,
     );
+    const nodeStream = await instance.toBuffer();
+    const chunks: Buffer[] = [];
+
+    for await (const chunk of nodeStream) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+
+    const buffer = Buffer.concat(chunks);
 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
@@ -45,9 +53,7 @@ export async function GET(
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    const stack = error instanceof Error ? error.stack : "";
     console.error("PDF generation error:", message);
-    console.error("PDF generation stack:", stack);
     return NextResponse.json(
       { error: "Erreur lors de la génération du PDF", details: message },
       { status: 500 },
