@@ -51,17 +51,17 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-shopify-border bg-white dark:bg-card dark:border-border transition-all duration-300",
+        "flex h-screen flex-col border-r border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-800 transition-all duration-300",
         collapsed ? "w-16" : "w-60",
       )}
     >
-      <div className="flex h-12 items-center px-3 border-b border-shopify-border dark:border-border">
+      <div className="flex h-12 items-center px-3 border-b border-gray-200 dark:border-gray-800">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
             <FileText className="h-4 w-4 text-white" />
           </div>
           {!collapsed && (
-            <span className="text-sm font-semibold text-shopify-text dark:text-card-foreground">
+            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               FacturaPro
             </span>
           )}
@@ -89,10 +89,10 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
-                  : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+                  ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
               )}
             >
               <item.icon className="h-4 w-4 shrink-0" />
@@ -106,10 +106,10 @@ export function Sidebar() {
         <Link
           href="/dashboard/products"
           className={cn(
-            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
             pathname.startsWith("/dashboard/products")
-              ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
-              : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+              ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
           )}
         >
           <Package className="h-4 w-4 shrink-0" />
@@ -118,10 +118,10 @@ export function Sidebar() {
         <Link
           href="/dashboard/settings"
           className={cn(
-            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
             pathname.startsWith("/dashboard/settings")
-              ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
-              : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+              ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
           )}
         >
           <Settings className="h-4 w-4 shrink-0" />
@@ -134,10 +134,10 @@ export function Sidebar() {
           <Link
             href="/admin"
             className={cn(
-              "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+              "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
               pathname.startsWith("/admin")
-                ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
-                : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+                ? "bg-gray-100 text-gray-900 dark:bg-white/10 dark:text-white"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white",
             )}
           >
             <Shield className="h-4 w-4 shrink-0" />
@@ -156,14 +156,14 @@ export function Sidebar() {
         </Link>
         <Link
           href="/dashboard/new-quote"
-          className="flex items-center gap-2.5 rounded-md bg-shopify-surface-subdued px-2.5 py-2 text-sm font-medium text-shopify-text hover:bg-shopify-surface-hover transition-colors dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+          className="flex items-center gap-2.5 rounded-md bg-gray-100 px-2.5 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 transition-colors dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
         >
           <Quote className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Nouveau devis</span>}
         </Link>
       </div>
 
-      <Separator className="dark:bg-border" />
+      <Separator />
 
       <div className="p-2 flex items-center gap-1">
         <ThemeToggle />
@@ -171,7 +171,7 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-shopify-text-subdued"
+            className="h-8 w-8"
             type="submit"
             title="Déconnexion"
           >

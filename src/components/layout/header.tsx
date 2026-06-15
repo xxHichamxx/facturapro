@@ -20,12 +20,12 @@ export async function Header() {
   const initials = user?.email?.charAt(0).toUpperCase() ?? "U";
 
   return (
-    <header className="flex h-12 items-center justify-end border-b border-shopify-border bg-white px-4 dark:bg-card dark:border-border">
+    <header className="flex h-12 items-center justify-end border-b border-gray-200 bg-white px-4 dark:bg-gray-900 dark:border-gray-800">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
             <Avatar className="h-7 w-7">
-              <AvatarFallback className="bg-shopify-interactive text-shopify-text text-xs font-medium">
+              <AvatarFallback className="bg-gray-100 text-gray-700 text-xs font-medium dark:bg-gray-800 dark:text-gray-300">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -35,7 +35,7 @@ export async function Header() {
           <DropdownMenuLabel>
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium">Mon compte</p>
-              <p className="text-xs text-shopify-text-subdued">{user?.email}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
