@@ -225,6 +225,9 @@ export function InvoicePDF({ document, lines }: { document: any; lines: any[] })
                 <Text style={{ fontSize: 8 }}>AT N°: {document.at_number}</Text>
                 {document.at_date && <Text style={{ fontSize: 8 }}>Date AT: {document.at_date}</Text>}
                 {document.at_bureau && <Text style={{ fontSize: 8 }}>Bureau: {document.at_bureau}</Text>}
+                <Text style={{ fontSize: 7, fontStyle: "italic", marginTop: 4, color: "#64748B" }}>
+                  Exonération de la TVA en vertu de l&apos;article 123-22° du Code Général des Impôts (CGI).
+                </Text>
               </View>
             )}
           </View>

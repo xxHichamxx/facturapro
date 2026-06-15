@@ -157,6 +157,9 @@ export default async function PublicViewPage({
                     <p className="text-sm text-muted-foreground">
                       AT N°: {document.at_number}{document.at_date ? ` — Date: ${document.at_date}` : ""}{document.at_bureau ? ` — Bureau: ${document.at_bureau}` : ""}
                     </p>
+                    <p className="text-xs text-muted-foreground mt-1 italic">
+                      Exonération de la TVA en vertu de l&apos;article 123-22° du Code Général des Impôts (CGI).
+                    </p>
                   </div>
                 )}
               </div>
