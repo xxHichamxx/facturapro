@@ -51,15 +51,17 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col glass-sidebar transition-all duration-300",
-        collapsed ? "w-16" : "w-64",
+        "flex h-screen flex-col border-r border-shopify-border bg-white dark:bg-card dark:border-border transition-all duration-300",
+        collapsed ? "w-16" : "w-60",
       )}
     >
-      <div className="flex h-14 items-center px-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <FileText className="h-6 w-6 shrink-0 text-primary" />
+      <div className="flex h-12 items-center px-3 border-b border-shopify-border dark:border-border">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
+            <FileText className="h-4 w-4 text-white" />
+          </div>
           {!collapsed && (
-            <span className="text-lg font-bold text-foreground">
+            <span className="text-sm font-semibold text-shopify-text dark:text-card-foreground">
               FacturaPro
             </span>
           )}
@@ -67,19 +69,19 @@ export function Sidebar() {
         <Button
           variant="ghost"
           size="icon"
-          className="ml-auto h-8 w-8"
+          className="ml-auto h-7 w-7"
           onClick={() => setCollapsed(!collapsed)}
         >
           <ChevronLeft
             className={cn(
-              "h-4 w-4 transition-transform",
+              "h-4 w-4 transition-transform duration-200",
               collapsed && "rotate-180",
             )}
           />
         </Button>
       </div>
 
-      <nav className="flex-1 space-y-1 p-2">
+      <nav className="flex-1 space-y-0.5 p-2">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
@@ -87,13 +89,13 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition-all duration-200",
+                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
                 isActive
-                  ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white"
-                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white",
+                  ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
+                  : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
               )}
             >
-              <item.icon className="h-5 w-5 shrink-0" />
+              <item.icon className="h-4 w-4 shrink-0" />
               {!collapsed && <span>{item.name}</span>}
             </Link>
           );
@@ -101,67 +103,79 @@ export function Sidebar() {
       </nav>
 
       <div className="px-2 pb-1 space-y-0.5">
-        <Link href="/dashboard/products" className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition-all duration-200", pathname.startsWith("/dashboard/products") ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white" : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white")}>
-          <Package className="h-5 w-5 shrink-0" />{!collapsed && <span>Produits</span>}
+        <Link
+          href="/dashboard/products"
+          className={cn(
+            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+            pathname.startsWith("/dashboard/products")
+              ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
+              : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+          )}
+        >
+          <Package className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Produits</span>}
         </Link>
-        <Link href="/dashboard/settings" className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] transition-all duration-200", pathname.startsWith("/dashboard/settings") ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white" : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white")}>
-          <Settings className="h-5 w-5 shrink-0" />{!collapsed && <span>Param&egrave;tres</span>}
+        <Link
+          href="/dashboard/settings"
+          className={cn(
+            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+            pathname.startsWith("/dashboard/settings")
+              ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
+              : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+          )}
+        >
+          <Settings className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Paramètres</span>}
         </Link>
       </div>
 
       {isSuperAdmin && (
         <div className="px-2 pb-1">
-            <Link
-              href="/admin"
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium transition-all duration-200",
-                pathname.startsWith("/admin")
-                  ? "bg-[#e8e8ed] text-foreground dark:bg-white/[0.08] dark:text-white"
-                  : "text-[#86868b] hover:bg-[#e8e8ed]/50 hover:text-foreground dark:text-[#98989d] dark:hover:bg-white/[0.06] dark:hover:text-white",
-              )}
+          <Link
+            href="/admin"
+            className={cn(
+              "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-100",
+              pathname.startsWith("/admin")
+                ? "bg-shopify-interactive text-shopify-text dark:bg-white/10 dark:text-white"
+                : "text-shopify-text-subdued hover:bg-shopify-surface-hover hover:text-shopify-text dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-white",
+            )}
           >
-            <Shield className="h-5 w-5 shrink-0" />
+            <Shield className="h-4 w-4 shrink-0" />
             {!collapsed && <span>Administration</span>}
           </Link>
         </div>
       )}
 
-      <Separator />
-
-      <div className="p-2">
+      <div className="px-2 py-3 space-y-1.5">
         <Link
           href="/dashboard/new-invoice"
-          className={cn(
-            "flex items-center gap-3 rounded-xl bg-primary px-3 py-2.5 text-[15px] font-medium text-white transition-all duration-200 hover:bg-primary-dark active:scale-[0.97]",
-          )}
+          className="flex items-center gap-2.5 rounded-md bg-primary px-2.5 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors"
         >
-          <FilePlus className="h-5 w-5 shrink-0" />
-          {!collapsed && <span>Nouvelle Facture</span>}
+          <FilePlus className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Nouvelle facture</span>}
         </Link>
         <Link
           href="/dashboard/new-quote"
-          className={cn(
-            "mt-2 flex items-center gap-3 rounded-xl bg-[#e8e8ed] px-3 py-2.5 text-[15px] font-medium text-foreground transition-all duration-200 hover:bg-[#dcdce0] dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.12]",
-          )}
+          className="flex items-center gap-2.5 rounded-md bg-shopify-surface-subdued px-2.5 py-2 text-sm font-medium text-shopify-text hover:bg-shopify-surface-hover transition-colors dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
         >
-          <Quote className="h-5 w-5 shrink-0" />
-          {!collapsed && <span>Nouveau Devis</span>}
+          <Quote className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Nouveau devis</span>}
         </Link>
       </div>
 
-      <div className="p-2">
-        <ThemeToggle />
-      </div>
+      <Separator className="dark:bg-border" />
 
-      <div className="p-2 pt-0">
+      <div className="p-2 flex items-center gap-1">
+        <ThemeToggle />
         <form action="/auth/signout" method="post">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground"
+            size="icon"
+            className="h-8 w-8 text-shopify-text-subdued"
             type="submit"
+            title="Déconnexion"
           >
-            <LogOut className="h-5 w-5" />
-            {!collapsed && <span>Déconnexion</span>}
+            <LogOut className="h-4 w-4" />
           </Button>
         </form>
       </div>
