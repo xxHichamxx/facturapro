@@ -7,10 +7,10 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-shopify-surface-hover text-shopify-text",
-        secondary: "bg-shopify-surface-subdued text-shopify-text-subdued",
+        default: "bg-gray-100 text-gray-700",
+        secondary: "bg-gray-50 text-gray-500",
         destructive: "bg-red-50 text-red-700",
-        outline: "text-shopify-text border border-shopify-border",
+        outline: "text-gray-700 border border-gray-200",
         success: "bg-green-50 text-green-700",
       },
     },

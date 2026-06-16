@@ -2,32 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 @layer base {
   :root {
-    --background: #f6f6f7;
-    --foreground: #202223;
+    --background: #f5f5f7;
+    --foreground: #1d1d1f;
     --card: #ffffff;
-    --card-foreground: #202223;
-    --border: #d2d5d8;
-    --input: #e4e5e7;
-    --muted: #f6f6f7;
-    --muted-foreground: #6d7175;
-    --ring: #008060;
-    --radius: 0.5rem;
+    --card-foreground: #1d1d1f;
+    --border: #d2d2d7;
+    --input: #e8e8ed;
+    --muted: #f5f5f7;
+    --muted-foreground: #86868b;
+    --ring: #0071e3;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: #0b0c0d;
-    --foreground: #e4e5e7;
-    --card: #1a1c1e;
-    --card-foreground: #e4e5e7;
-    --border: #2c2e30;
-    --input: #2c2e30;
-    --muted: #1a1c1e;
-    --muted-foreground: #8c9196;
-    --ring: #009671;
+    --background: #0a0a0a;
+    --foreground: #f5f5f7;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-foreground: #f5f5f7;
+    --border: rgba(255, 255, 255, 0.08);
+    --input: rgba(255, 255, 255, 0.1);
+    --muted: rgba(255, 255, 255, 0.05);
+    --muted-foreground: #98989d;
+    --ring: #409cff;
   }
 
   * {
@@ -49,31 +49,31 @@
   }
 
   .status-draft {
-    @apply bg-[#f1f1f2] text-[#6d7175];
+    @apply bg-gray-100 text-gray-600;
   }
 
   .status-sent {
-    @apply bg-blue-50 text-blue-700;
+    @apply bg-blue-50 text-blue-600;
   }
 
   .status-viewed {
-    @apply bg-purple-50 text-purple-700;
+    @apply bg-purple-50 text-purple-600;
   }
 
   .status-accepted {
-    @apply bg-green-50 text-green-700;
+    @apply bg-green-50 text-green-600;
   }
 
   .status-paid {
-    @apply bg-emerald-50 text-emerald-700;
+    @apply bg-emerald-50 text-emerald-600;
   }
 
   .status-overdue {
-    @apply bg-red-50 text-red-700;
+    @apply bg-red-50 text-red-600;
   }
 
   .dark .status-draft {
-    @apply bg-white/10 text-[#8c9196];
+    @apply bg-white/10 text-gray-300;
   }
 
   .dark .status-sent {
