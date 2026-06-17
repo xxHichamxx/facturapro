@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { documentSchema, type DocumentFormData } from "@/lib/validations";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -65,7 +64,6 @@ export function DocumentEditor({ company, clients, type, initialData, documentId
   const [loading, setLoading] = useState(false);
 
   const form = useForm<DocumentFormData>({
-    resolver: zodResolver(documentSchema),
     defaultValues: {
       client_id: initialData?.client_id ?? "",
       type,
